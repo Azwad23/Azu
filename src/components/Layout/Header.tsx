@@ -1,6 +1,8 @@
 import React from 'react';
-import { User, ShoppingCart, Heart, BookOpen, Menu, LogOut } from 'lucide-react';
+import { User, ShoppingCart, Heart, BookOpen, Menu, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import LoginModal from '../Auth/LoginModal';
+import SignupModal from '../Auth/SignupModal';
 
 interface HeaderProps {
   currentView: string;
@@ -9,6 +11,8 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
   const { user, logout } = useAuth();
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
+  const [showSignupModal, setShowSignupModal] = React.useState(false);
 
   const navItems = [
     { id: 'books', label: 'Books', icon: BookOpen },
@@ -55,30 +59,53 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => onViewChange('add-book')}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-            >
-              Add Book
-            </button>
-            
-            <div className="flex items-center space-x-2 text-gray-700">
-              <User size={20} />
-              <span className="text-sm font-medium">{user?.username}</span>
-            </div>
-            
-            <button
-              onClick={logout}
-              className="text-gray-400 hover:text-red-500 transition-colors"
-              title="Logout"
-            >
-              <LogOut size={20} />
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => onViewChange('add-book')}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                >
+                  Add Book
+                </button>
+                
+                <div className="flex items-center space-x-2 text-gray-700">
+                  <User size={20} />
+                  <span className="text-sm font-medium">{user?.username}</span>
+                </div>
+                
+                <button
+                  onClick={logout}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                  title="Logout"
+                >
+                  <LogOut size={20} />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  <LogIn size={18} />
+                  <span className="text-sm font-medium">Login</span>
+                </button>
+                
+                <button
+                  onClick={() => setShowSignupModal(true)}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center space-x-2"
+                >
+                  <UserPlus size={18} />
+                  <span>Sign Up</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden border-t border-gray-200 pt-2 pb-3">
+        {user && (
+          <div className="md:hidden border-t border-gray-200 pt-2 pb-3">
           <div className="flex space-x-1 overflow-x-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -98,8 +125,28 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
               );
             })}
           </div>
-        </div>
+          </div>
+        )}
       </div>
+      
+      {/* Modals */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToSignup={() => {
+          setShowLoginModal(false);
+          setShowSignupModal(true);
+        }}
+      />
+      
+      <SignupModal 
+        isOpen={showSignupModal} 
+        onClose={() => setShowSignupModal(false)}
+        onSwitchToLogin={() => {
+          setShowSignupModal(false);
+          setShowLoginModal(true);
+        }}
+      />
     </header>
   );
 };

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BookProvider } from './context/BookContext';
-import LoginForm from './components/Auth/LoginForm';
-import SignupForm from './components/Auth/SignupForm';
 import Header from './components/Layout/Header';
 import BookList from './components/Books/BookList';
 import AddBook from './components/Books/AddBook';
@@ -13,7 +11,6 @@ import AdminPanel from './components/Admin/AdminPanel';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [currentView, setCurrentView] = useState('books');
 
   if (loading) {
@@ -27,28 +24,24 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!user) {
-    return authMode === 'login' ? (
-      <LoginForm onSwitchToSignup={() => setAuthMode('signup')} />
-    ) : (
-      <SignupForm onSwitchToLogin={() => setAuthMode('login')} />
-    );
-  }
-
   const renderCurrentView = () => {
+    if (!user && currentView !== 'books') {
+      return <BookList />;
+    }
+    
     switch (currentView) {
       case 'books':
         return <BookList />;
       case 'add-book':
-        return <AddBook />;
+        return user ? <AddBook /> : <BookList />;
       case 'wishlist':
-        return <Wishlist />;
+        return user ? <Wishlist /> : <BookList />;
       case 'exchange':
-        return <Exchange />;
+        return user ? <Exchange /> : <BookList />;
       case 'reviews':
-        return <Reviews />;
+        return user ? <Reviews /> : <BookList />;
       case 'admin':
-        return <AdminPanel />;
+        return user?.isAdmin ? <AdminPanel /> : <BookList />;
       default:
         return <BookList />;
     }
