@@ -8,6 +8,7 @@ import Wishlist from './components/Wishlist/Wishlist';
 import Exchange from './components/Exchange/Exchange';
 import Reviews from './components/Reviews/Reviews';
 import AdminPanel from './components/Admin/AdminPanel';
+import UserProfile from './components/Profile/UserProfile';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
@@ -34,6 +35,8 @@ const AppContent: React.FC = () => {
         return <BookList />;
       case 'add-book':
         return user ? <AddBook /> : <BookList />;
+      case 'profile':
+        return user ? <UserProfile /> : <BookList />;
       case 'wishlist':
         return user ? <Wishlist /> : <BookList />;
       case 'exchange':

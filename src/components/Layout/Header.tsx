@@ -16,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
 
   const navItems = [
     { id: 'books', label: 'Books', icon: BookOpen },
+    { id: 'profile', label: 'Profile', icon: User },
     { id: 'wishlist', label: 'Wishlist', icon: Heart },
     { id: 'exchange', label: 'Exchange', icon: ShoppingCart },
     { id: 'reviews', label: 'Reviews', icon: User },
@@ -34,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
               className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer"
               onClick={() => onViewChange('books')}
             >
-              BookExchange
+              BoiBondhu
             </div>
             
             <nav className="hidden md:flex space-x-1">
@@ -68,10 +69,13 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
                   Add Book
                 </button>
                 
-                <div className="flex items-center space-x-2 text-gray-700">
+                <button
+                  onClick={() => onViewChange('profile')}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+                >
                   <User size={20} />
                   <span className="text-sm font-medium">{user?.username}</span>
-                </div>
+                </button>
                 
                 <button
                   onClick={logout}

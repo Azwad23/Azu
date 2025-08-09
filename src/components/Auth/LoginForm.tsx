@@ -33,7 +33,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
             Welcome Back
           </h1>
-          <p className="text-gray-600 mt-2">Sign in to your BookExchange account</p>
+          <p className="text-gray-600 mt-2">Sign in to your BoiBondhu account</p>
         </div>
 
         {/* Demo Credentials */}

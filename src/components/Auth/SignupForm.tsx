@@ -58,7 +58,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             <BookOpen className="text-white" size={32} />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-            Join BookExchange
+            Join BoiBondhu
           </h1>
           <p className="text-gray-600 mt-2">Create your account to start trading books</p>
         </div>
