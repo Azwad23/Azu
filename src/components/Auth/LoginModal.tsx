@@ -32,8 +32,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative mt-4 mb-8">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative my-8">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -41,13 +41,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
           <X size={24} />
         </button>
 
-        <div className="text-center mb-6">
+        <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
           <p className="text-gray-600">Sign in to your account</p>
         </div>
 
         {/* Demo Credentials */}
-        <div className="bg-blue-50 rounded-lg p-3 mb-4 text-sm">
+        <div className="bg-blue-50 rounded-lg p-4 mb-6 text-sm">
           <h3 className="font-semibold text-blue-800 mb-2">Demo Credentials:</h3>
           <div className="space-y-1 text-blue-700">
             <p><strong>Admin:</strong> admin@bookapp.com / admin123</p>
@@ -55,7 +55,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
@@ -68,7 +68,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your email"
                 required
               />
@@ -87,7 +87,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your password"
                 required
               />
@@ -106,7 +106,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -114,13 +114,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-lg font-medium hover:shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center">
           <p className="text-gray-600">
             Don't have an account?{' '}
             <button
