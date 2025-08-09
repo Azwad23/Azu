@@ -12,28 +12,25 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const { login, loading } = useAuth();
+  const { login, loading, error, setError } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(null);
     
     const success = await login(email, password);
     if (success) {
       onClose();
       setEmail('');
       setPassword('');
-    } else {
-      setError('Invalid email or password');
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative my-8">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style={{height: "100vh"}}>
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
