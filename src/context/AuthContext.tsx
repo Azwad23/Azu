@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 
+const API_BASE_URL = 'http://localhost:8080/api';
+
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: Omit<User, 'id' | 'joinedDate'> & { password: string }) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
+  error: string | null;
+  setError: (error: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,82 +30,108 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('bookapp_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    if (token && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
+    setError(null);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Demo users
-    const demoUsers: (User & { password: string })[] = [
-      {
-        id: '1',
-        username: 'admin',
-        email: 'admin@bookapp.com',
-        password: 'admin123',
-        isAdmin: true,
-        joinedDate: '2024-01-01'
-      },
-      {
-        id: '2',
-        username: 'johndoe',
-        email: 'john@example.com',
-        password: 'user123',
-        isAdmin: false,
-        joinedDate: '2024-01-15'
-      }
-    ];
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const foundUser = demoUsers.find(u => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('bookapp_user', JSON.stringify(userWithoutPassword));
+      if (response.ok) {
+        const data = await response.json();
+        const userData: User = {
+          id: data.id.toString(),
+          username: data.username,
+          email: data.email,
+          isAdmin: data.isAdmin,
+          joinedDate: new Date().toISOString().split('T')[0]
+        };
+        
+        setUser(userData);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setLoading(false);
+        return true;
+      } else {
+        const errorData = await response.text();
+        setError(errorData || 'Login failed');
+        setLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Network error. Please check if the backend server is running.');
       setLoading(false);
-      return true;
+      return false;
     }
-    
-    setLoading(false);
-    return false;
   };
 
   const signup = async (userData: Omit<User, 'id' | 'joinedDate'> & { password: string }): Promise<boolean> => {
     setLoading(true);
+    setError(null);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser: User = {
-      id: Date.now().toString(),
-      username: userData.username,
-      email: userData.email,
-      isAdmin: false,
-      joinedDate: new Date().toISOString().split('T')[0]
-    };
-    
-    setUser(newUser);
-    localStorage.setItem('bookapp_user', JSON.stringify(newUser));
-    setLoading(false);
-    return true;
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: userData.username,
+          email: userData.email,
+          password: userData.password,
+        }),
+      });
+
+      if (response.ok) {
+        // After successful signup, automatically log in
+        const loginSuccess = await login(userData.email, userData.password);
+        return loginSuccess;
+      } else {
+        const errorData = await response.text();
+        setError(errorData || 'Signup failed');
+        setLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      setError('Network error. Please check if the backend server is running.');
+      setLoading(false);
+      return false;
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('bookapp_user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setError(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, loading, error, setError }}>
       {children}
     </AuthContext.Provider>
   );

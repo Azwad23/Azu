@@ -136,6 +136,7 @@ const BookList: React.FC = () => {
             isInWishlist={isInWishlist(book.id)}
             onToggleWishlist={() => toggleWishlist(book.id)}
             onClick={() => setSelectedBook(book.id)}
+            showWishlist={!!user}
           />
         ))}
       </div>

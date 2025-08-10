@@ -8,6 +8,7 @@ interface BookCardProps {
   isInWishlist: boolean;
   onToggleWishlist: () => void;
   onClick: () => void;
+  showWishlist?: boolean;
 }
 
 const BookCard: React.FC<BookCardProps> = ({
@@ -15,7 +16,8 @@ const BookCard: React.FC<BookCardProps> = ({
   viewMode,
   isInWishlist,
   onToggleWishlist,
-  onClick
+  onClick,
+  showWishlist = true
 }) => {
   const getConditionColor = (condition: string) => {
     switch (condition) {
@@ -48,7 +50,8 @@ const BookCard: React.FC<BookCardProps> = ({
                 <p className="text-gray-600">by {book.author}</p>
               </div>
               
-              <button
+              {showWishlist && (
+                <button
                 onClick={onToggleWishlist}
                 className={`p-2 rounded-full transition-colors ${
                   isInWishlist
@@ -57,7 +60,8 @@ const BookCard: React.FC<BookCardProps> = ({
                 }`}
               >
                 <Heart size={20} fill={isInWishlist ? 'currentColor' : 'none'} />
-              </button>
+                </button>
+              )}
             </div>
             
             <div className="flex items-center gap-4 mb-2">
@@ -112,7 +116,8 @@ const BookCard: React.FC<BookCardProps> = ({
           className="w-full h-48 object-cover rounded-t-lg cursor-pointer"
           onClick={onClick}
         />
-        <button
+        {showWishlist && (
+          <button
           onClick={onToggleWishlist}
           className={`absolute top-3 right-3 p-2 rounded-full transition-all backdrop-blur-sm ${
             isInWishlist
@@ -121,7 +126,8 @@ const BookCard: React.FC<BookCardProps> = ({
           }`}
         >
           <Heart size={18} fill={isInWishlist ? 'currentColor' : 'none'} />
-        </button>
+          </button>
+        )}
         
         <div className="absolute bottom-3 left-3 flex gap-1">
           {book.forSale && (

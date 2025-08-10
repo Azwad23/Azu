@@ -1,11 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Book, Review, ExchangeRequest, WishlistItem } from '../types';
 
+const API_BASE_URL = 'http://localhost:8080/api';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+};
+
 interface BookContextType {
   books: Book[];
   reviews: Review[];
   exchangeRequests: ExchangeRequest[];
   wishlist: WishlistItem[];
+  loading: boolean;
   addBook: (book: Omit<Book, 'id' | 'createdAt'>) => void;
   updateBook: (id: string, book: Partial<Book>) => void;
   deleteBook: (id: string) => void;
@@ -14,6 +25,7 @@ interface BookContextType {
   removeFromWishlist: (userId: string, bookId: string) => void;
   createExchangeRequest: (request: Omit<ExchangeRequest, 'id' | 'createdAt'>) => void;
   updateExchangeRequest: (id: string, status: ExchangeRequest['status']) => void;
+  fetchBooks: () => void;
 }
 
 const BookContext = createContext<BookContextType | undefined>(undefined);
@@ -35,82 +47,144 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [exchangeRequests, setExchangeRequests] = useState<ExchangeRequest[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Initialize with sample data
-    const sampleBooks: Book[] = [
-      {
-        id: '1',
-        title: 'The Great Gatsby',
-        author: 'F. Scott Fitzgerald',
-        isbn: '9780743273565',
-        genre: 'Classic Literature',
-        condition: 'good',
-        price: 12.99,
-        description: 'A classic American novel about the Jazz Age.',
-        images: ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
-        sellerId: '2',
-        sellerName: 'johndoe',
-        isAvailable: true,
-        publishedYear: 1925,
-        language: 'English',
-        pageCount: 180,
-        createdAt: '2024-01-01',
-        forSale: true,
-        forExchange: true
-      },
-      {
-        id: '2',
-        title: 'To Kill a Mockingbird',
-        author: 'Harper Lee',
-        isbn: '9780060935467',
-        genre: 'Classic Literature',
-        condition: 'like-new',
-        price: 14.50,
-        description: 'A gripping tale of racial injustice and childhood innocence.',
-        images: ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
-        sellerId: '1',
-        sellerName: 'admin',
-        isAvailable: true,
-        publishedYear: 1960,
-        language: 'English',
-        pageCount: 281,
-        createdAt: '2024-01-02',
-        forSale: true,
-        forExchange: false
-      },
-      {
-        id: '3',
-        title: '1984',
-        author: 'George Orwell',
-        isbn: '9780451524935',
-        genre: 'Science Fiction',
-        condition: 'good',
-        price: 11.25,
-        description: 'A dystopian social science fiction novel.',
-        images: ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
-        sellerId: '2',
-        sellerName: 'johndoe',
-        isAvailable: true,
-        publishedYear: 1949,
-        language: 'English',
-        pageCount: 328,
-        createdAt: '2024-01-03',
-        forSale: false,
-        forExchange: true
-      }
-    ];
 
-    setBooks(sampleBooks);
+    fetchBooks();
   }, []);
 
-  const addBook = (bookData: Omit<Book, 'id' | 'createdAt'>) => {
-    const newBook: Book = {
-      ...bookData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    setBooks(prev => [...prev, newBook]);
+  const fetchBooks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/books`, {
+        headers: getAuthHeaders(),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const formattedBooks: Book[] = data.map((book: any) => ({
+          id: book.id.toString(),
+          title: book.title,
+          author: book.author,
+          isbn: book.isbn,
+          genre: book.genre,
+          condition: book.condition.toLowerCase().replace('_', '-'),
+          price: parseFloat(book.price),
+          description: book.description,
+          images: book.images || ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
+          sellerId: book.seller.id.toString(),
+          sellerName: book.seller.username,
+          isAvailable: book.isAvailable,
+          publishedYear: book.publishedYear,
+          language: book.language,
+          pageCount: book.pageCount,
+          createdAt: new Date(book.createdAt).toISOString().split('T')[0],
+          forSale: book.forSale,
+          forExchange: book.forExchange
+        }));
+        setBooks(formattedBooks);
+      } else {
+        console.error('Failed to fetch books');
+        // Fallback to sample data if backend is not available
+        const sampleBooks: Book[] = [
+          {
+            id: '1',
+            title: 'The Great Gatsby',
+            author: 'F. Scott Fitzgerald',
+            isbn: '9780743273565',
+            genre: 'Classic Literature',
+            condition: 'good',
+            price: 12.99,
+            description: 'A classic American novel about the Jazz Age.',
+            images: ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
+            sellerId: '2',
+            sellerName: 'johndoe',
+            isAvailable: true,
+            publishedYear: 1925,
+            language: 'English',
+            pageCount: 180,
+            createdAt: '2024-01-01',
+            forSale: true,
+            forExchange: true
+          }
+        ];
+        setBooks(sampleBooks);
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      // Fallback to sample data
+      const sampleBooks: Book[] = [
+        {
+          id: '1',
+          title: 'The Great Gatsby',
+          author: 'F. Scott Fitzgerald',
+          isbn: '9780743273565',
+          genre: 'Classic Literature',
+          condition: 'good',
+          price: 12.99,
+          description: 'A classic American novel about the Jazz Age.',
+          images: ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
+          sellerId: '2',
+          sellerName: 'johndoe',
+          isAvailable: true,
+          publishedYear: 1925,
+          language: 'English',
+          pageCount: 180,
+          createdAt: '2024-01-01',
+          forSale: true,
+          forExchange: true
+        }
+      ];
+      setBooks(sampleBooks);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const addBook = async (bookData: Omit<Book, 'id' | 'createdAt'>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/books`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: bookData.title,
+          author: bookData.author,
+          isbn: bookData.isbn,
+          genre: bookData.genre,
+          condition: bookData.condition.toUpperCase().replace('-', '_'),
+          price: bookData.price,
+          description: bookData.description,
+          images: bookData.images,
+          publishedYear: bookData.publishedYear,
+          language: bookData.language,
+          pageCount: bookData.pageCount,
+          forSale: bookData.forSale,
+          forExchange: bookData.forExchange
+        }),
+      });
+      
+      if (response.ok) {
+        fetchBooks(); // Refresh the books list
+      } else {
+        console.error('Failed to add book');
+        // Fallback to local state update
+        const newBook: Book = {
+          ...bookData,
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        setBooks(prev => [...prev, newBook]);
+      }
+    } catch (error) {
+      console.error('Error adding book:', error);
+      // Fallback to local state update
+      const newBook: Book = {
+        ...bookData,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      setBooks(prev => [...prev, newBook]);
+    }
   };
 
   const updateBook = (id: string, bookData: Partial<Book>) => {
@@ -169,6 +243,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       reviews,
       exchangeRequests,
       wishlist,
+      loading,
       addBook,
       updateBook,
       deleteBook,
@@ -176,7 +251,8 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       addToWishlist,
       removeFromWishlist,
       createExchangeRequest,
-      updateExchangeRequest
+      updateExchangeRequest,
+      fetchBooks
     }}>
       {children}
     </BookContext.Provider>
