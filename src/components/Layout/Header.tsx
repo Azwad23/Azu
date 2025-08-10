@@ -14,17 +14,28 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [showSignupModal, setShowSignupModal] = React.useState(false);
 
-  const navItems = [
-    { id: 'books', label: 'Books', icon: BookOpen },
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'wishlist', label: 'Wishlist', icon: Heart },
-    { id: 'exchange', label: 'Exchange', icon: ShoppingCart },
-    { id: 'reviews', label: 'Reviews', icon: User },
-  ];
+  const getNavItems = () => {
+    const baseItems = [
+      { id: 'books', label: 'Books', icon: BookOpen }
+    ];
 
-  if (user?.isAdmin) {
-    navItems.push({ id: 'admin', label: 'Admin', icon: Menu });
-  }
+    if (user) {
+      baseItems.push(
+        { id: 'profile', label: 'Profile', icon: User },
+        { id: 'wishlist', label: 'Wishlist', icon: Heart },
+        { id: 'exchange', label: 'Exchange', icon: ShoppingCart },
+        { id: 'reviews', label: 'Reviews', icon: User }
+      );
+
+      if (user.isAdmin) {
+        baseItems.push({ id: 'admin', label: 'Admin', icon: Menu });
+      }
+    }
+
+    return baseItems;
+  };
+
+  const navItems = getNavItems();
 
   return (
     <header className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
@@ -108,8 +119,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
         </div>
 
         {/* Mobile Navigation */}
-        {user && (
-          <div className="md:hidden border-t border-gray-200 pt-2 pb-3">
+        <div className="md:hidden border-t border-gray-200 pt-2 pb-3">
           <div className="flex space-x-1 overflow-x-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -129,8 +139,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
               );
             })}
           </div>
-          </div>
-        )}
+        </div>
       </div>
       
       {/* Modals */}
