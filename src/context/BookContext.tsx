@@ -63,7 +63,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       
       if (response.ok) {
         const data = await response.json();
-        const formattedBooks: Book[] = data.map((book: any) => ({
+        const formattedBooks: Book[] = (Array.isArray(data) ? data : []).map((book: any) => ({
           id: book.id.toString(),
           title: book.title,
           author: book.author,
@@ -72,9 +72,9 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           condition: book.condition.toLowerCase().replace('_', '-'),
           price: parseFloat(book.price),
           description: book.description,
-          images: book.images || ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
-          sellerId: book.seller.id.toString(),
-          sellerName: book.seller.username,
+          images: book.images?.length > 0 ? book.images : ['https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg'],
+          sellerId: book.seller?.id?.toString() || '1',
+          sellerName: book.seller?.username || 'Unknown',
           isAvailable: book.isAvailable,
           publishedYear: book.publishedYear,
           language: book.language,

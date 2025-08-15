@@ -62,10 +62,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         const userData: User = {
-          id: data.id.toString(),
+          id: data.id?.toString() || '1',
           username: data.username,
           email: data.email,
-          isAdmin: data.isAdmin,
+          isAdmin: data.isAdmin || false,
           joinedDate: new Date().toISOString().split('T')[0]
         };
         
