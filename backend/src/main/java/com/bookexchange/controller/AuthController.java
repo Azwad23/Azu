@@ -1,4 +1,5 @@
 package com.bookexchange.controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.bookexchange.dto.JwtResponse;
 import com.bookexchange.dto.LoginRequest;
@@ -22,6 +23,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     @Autowired
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok("Backend server is running");
+    }
+
     AuthenticationManager authenticationManager;
 
     @Autowired

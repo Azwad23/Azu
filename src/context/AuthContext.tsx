@@ -51,6 +51,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
     
     try {
+      // Check if backend is accessible first
+      const healthCheck = await fetch(`${API_BASE_URL}/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).catch(() => null);
+
+      if (!healthCheck) {
+        throw new Error('Backend server is not running. Please start the backend server first.');
+      }
+
       const response = await fetch(`${API_BASE_URL}/auth/signin`, {
         method: 'POST',
         headers: {
@@ -82,7 +94,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Network error. Please check if the backend server is running.');
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Backend server is not running. Please start the backend server by running: cd backend && mvn spring-boot:run');
+      }
       setLoading(false);
       return false;
     }
